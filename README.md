@@ -1,6 +1,6 @@
-# 旅程记录生成器 (Reisverslag Generator)
+# 旅程记录生成器 (Trip Generator)
 
-这是一个 Python 脚本，可以自动生成旅程记录并导出到 Excel 文件。
+一个智能的旅程记录生成工具，能够自动生成符合特定要求的旅程报告并导出为 Excel 文件。
 
 ## 🆕 最新更新
 
@@ -11,19 +11,64 @@
 
 ## 功能特点
 
-- ✅ 使用 `argparse` 处理命令行参数
-- ✅ 支持指定年份、季度、目标公里数和起始位置
-- ✅ 自动生成随机的荷兰城市/村庄和比利时弗拉芒区域目的地
-- ✅ 生成 DD-MM-YYYY 格式的日期，按季度排列
-- ✅ **真实距离计算**: 使用 Google Maps API 或随机生成
-- ✅ 导出到 Excel 文件，**荷兰语表头**
-- ✅ 可选保存 JSON 格式
-- ✅ **环境变量支持**: 安全的 API 密钥配置
+### 🎯 智能距离分布
 
-## 安装依赖
+- **40%** 短途行程 (< 100 公里)
+- **40%** 中途行程 (100-300 公里)
+- **20%** 长途行程 (> 300 公里)
+
+### 🗺️ 真实距离计算
+
+- 集成 Google Maps API
+- 基于实际驾驶路线计算距离
+- 自动避开收费路段
+- 提供详细的行驶时间信息
+
+### 🏷️ 智能地区识别
+
+- 自动识别荷兰和比利时城市
+- 比利时城市自动添加"BE"标识
+- 支持多种地址格式匹配
+
+### 🔄 重复限制控制
+
+- **目的地重复限制**: 每个目的地最多使用 3 次
+- **同一天行程限制**: 每天最多安排 2 次行程
+- 智能回退机制，自动寻找替代方案
+
+### 📊 详细统计报告
+
+- 实时显示生成进度
+- 目的地使用统计
+- 日期分布统计
+- 距离分布分析
+
+## 安装要求
 
 ```bash
-pip install -r requirements.txt
+pip install pandas openpyxl googlemaps
+```
+
+## 环境配置
+
+### 方法 1: 使用.env 文件 (推荐)
+
+创建`.env`文件：
+
+```
+GOOGLE_MAPS_API_KEY=your_api_key_here
+```
+
+### 方法 2: 设置环境变量
+
+```bash
+export GOOGLE_MAPS_API_KEY='your_api_key_here'
+```
+
+### 方法 3: 命令行参数
+
+```bash
+python trip_generator.py --google-api-key YOUR_API_KEY [其他参数]
 ```
 
 ## 使用方法
@@ -31,199 +76,166 @@ pip install -r requirements.txt
 ### 基本用法
 
 ```bash
-python trip_generator.py <年份> <季度> <目标公里数> "<起始位置>"
+python trip_generator.py --year 2025 --quarter 1 --target-km 5000 --address "您的起始地址"
 ```
 
-### 示例
+### 完整参数示例
 
 ```bash
-# 基本使用（随机距离）
-python trip_generator.py 2025 1 5000 "de genestetlaan 299 den haag"
-
-# 使用环境变量中的 Google Maps API 密钥（推荐）
-python trip_generator.py 2025 1 5000 "de genestetlaan 299 den haag"
-
-# 直接指定 Google Maps API 密钥
-python trip_generator.py 2025 1 5000 "de genestetlaan 299 den haag" --google-api-key YOUR_API_KEY
-
-# 指定输出文件名
-python trip_generator.py 2025 1 5000 "Amsterdam Centraal" --output "mijn_reisverslag.xlsx"
-
-# 同时保存JSON文件
-python trip_generator.py 2025 1 5000 "Rotterdam Centraal" --json
-
-# 使用随机种子确保结果可重现
-python trip_generator.py 2025 1 5000 "Utrecht Centraal" --seed 12345
+python trip_generator.py \
+  --year 2025 \
+  --quarter 1 \
+  --target-km 5000 \
+  --address "您的起始地址" \
+  --output 我的旅程报告.xlsx \
+  --google-api-key YOUR_API_KEY \
+  --json \
+  --seed 12345
 ```
 
-### 参数说明
+## 参数说明
 
-| 参数               | 类型 | 必需 | 说明                     |
-| ------------------ | ---- | ---- | ------------------------ |
-| `year`             | int  | 是   | 年份（如 2025）          |
-| `quarter`          | int  | 是   | 季度（1, 2, 3, 4）       |
-| `target_km`        | int  | 是   | 目标公里数               |
-| `start_location`   | str  | 是   | 起始位置                 |
-| `--output`, `-o`   | str  | 否   | 输出 Excel 文件名        |
-| `--json`           | flag | 否   | 同时保存 JSON 文件       |
-| `--seed`           | int  | 否   | 随机种子（用于重现结果） |
-| `--google-api-key` | str  | 否   | Google Maps API 密钥     |
+| 参数               | 类型 | 必需 | 说明                      |
+| ------------------ | ---- | ---- | ------------------------- |
+| `--year`           | int  | ✅   | 年份 (例: 2025)           |
+| `--quarter`        | int  | ✅   | 季度 (1, 2, 3, 4)         |
+| `--target-km`      | int  | ✅   | 目标总公里数              |
+| `--address`        | str  | ✅   | 起始地址                  |
+| `--output`         | str  | ❌   | 输出 Excel 文件名         |
+| `--google-api-key` | str  | ❌   | Google Maps API 密钥      |
+| `--json`           | flag | ❌   | 同时生成 JSON 文件        |
+| `--seed`           | int  | ❌   | 随机种子 (用于可重现结果) |
 
-## 输出格式
+## 输出文件
 
-生成的 Excel 文件包含以下**荷兰语**列：
+### Excel 文件格式
 
-- **Datum**: DD-MM-YYYY 格式
-- **Bestemming**: 随机选择的荷兰城市/村庄或比利时弗拉芒区域
-- **Omschrijving**: "klant bezoeken"
-- **Totale afstand (km)**: 计算的往返距离
+- **Datum**: 日期 (DD-MM-YYYY)
+- **Bestemming**: 目的地
+- **Omschrijving**: 描述 (默认: "klant bezoeken")
+- **Totale afstand (km)**: 总距离 (往返)
 
-## Google Maps API 设置
+### 统计信息
 
-### 1. 获取 API 密钥
+- 总行程数和总公里数
+- 距离分布统计
+- 目的地使用频率
+- 日期分布情况
 
-1. 访问 [Google Cloud Console](https://console.cloud.google.com/)
-2. 创建新项目或选择现有项目
-3. 启用 **Distance Matrix API**
-4. 创建 API 密钥
-5. （可选）限制 API 密钥使用范围
+## 智能限制机制
 
-### 2. 配置环境变量（推荐方式）
-
-#### 🔐 安全最佳实践
-
-⚠️ **重要安全提醒：**
-
-- ❌ **绝对不要**将 API 密钥直接写在代码中
-- ❌ **绝对不要**将包含真实 API 密钥的文件提交到版本控制
-- ✅ **务必**使用环境变量或配置文件管理敏感信息
-- ✅ **确保** `.env` 文件已被 `.gitignore` 忽略
-
-#### 🔧 快速设置
-
-**安全配置步骤：**
-
-1. **复制配置模板**
-
-```bash
-cp .env.example .env
-```
-
-2. **编辑 .env 文件**
-
-```bash
-# 编辑 .env 文件，替换 YOUR_ACTUAL_API_KEY_HERE 为您的真实API密钥
-nano .env
-```
-
-3. **加载环境变量**
-
-```bash
-source .env
-```
-
-#### 🛠️ 手动设置
-
-**方法 1: 临时设置（当前会话）**
-
-```bash
-export GOOGLE_MAPS_API_KEY="你的API密钥"
-```
-
-**方法 2: 永久设置 - Zsh (macOS 默认)**
-
-```bash
-echo 'export GOOGLE_MAPS_API_KEY="你的API密钥"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**方法 3: 永久设置 - Bash**
-
-```bash
-echo 'export GOOGLE_MAPS_API_KEY="你的API密钥"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**方法 4: 使用 .env 文件（推荐）**
-
-```bash
-# 创建 .env 文件（此文件不会被提交到版本控制）
-echo 'GOOGLE_MAPS_API_KEY=你的API密钥' > .env
-source .env
-```
-
-### 3. 使用 API 密钥
-
-设置环境变量后，直接运行脚本即可：
-
-```bash
-# 脚本会自动使用环境变量中的API密钥
-python trip_generator.py 2025 1 5000 "Amsterdam Centraal"
-
-# 也可以通过命令行参数覆盖环境变量
-python trip_generator.py 2025 1 5000 "Amsterdam Centraal" --google-api-key OTHER_API_KEY
-```
-
-### 4. 测试 API 连接
-
-```bash
-python google_api_example.py
-```
-
-## 城市和地区覆盖
-
-脚本现在包含：
-
-### 🇳🇱 荷兰
-
-- **主要城市**: Amsterdam, Rotterdam, Den Haag, Utrecht 等
-- **村庄 (Dorpen)**: Volendam, Marken, Edam, Monnickendam 等
-- **涵盖所有省份**: 从 Groningen 到 Limburg
-
-### 🇧🇪 比利时弗拉芒区域 (Vlaanderen)
-
-- **主要城市**: Antwerpen, Gent, Brugge, Leuven 等
-- **小城镇**: Knokke-Heist, Blankenberge, Ieper 等
-- **历史地区**: 包含西弗拉芒省各地
-
-## 距离计算
-
-### 使用 Google Maps API（推荐）
-
-- ✅ 真实驾驶距离
-- ✅ 避免收费道路
-- ✅ 考虑实际路况
-- ⚠️ 需要有效的 API 密钥
-
-### 随机生成（后备选项）
-
-- 🎲 50-400 公里单程范围
-- 🎲 适合测试和演示
-- 🆓 无需 API 密钥
-
-## 注意事项
-
-- Excel 表头和界面信息使用荷兰语
-- 日期生成在指定季度内随机分布
-- 脚本会确保总公里数接近目标值（允许 10%误差）
-- 生成的旅程按日期排序
-- Google Maps API 调用失败时会自动回退到随机距离
-- 环境变量优先级高于命令行参数
-- **安全提醒**: `.env` 文件包含敏感信息，已被 `.gitignore` 忽略
-
-## 文件结构
+### 目的地重复限制 (最多 3 次)
 
 ```
-trip_generator.py       # 主脚本
-requirements.txt        # 依赖列表
-google_api_example.py   # Google API 使用示例
-.env.example           # 环境变量配置示例（安全提交）
-.gitignore             # Git忽略文件（包含.env）
-README.md              # 本说明文件
+✨ 添加行程: Delft (20km - 短途)
+✨ 添加行程: Delft (2/3)(20km - 短途)
+✨ 添加行程: Delft (3/3)(20km - 短途)
+⚠️  Delft已达到3次使用限制，将自动选择其他目的地
 ```
 
-⚠️ **注意**: `.env` 文件包含敏感信息，不会出现在版本控制中
+### 同一天行程限制 (最多 2 次)
+
+```
+✨ 添加行程: Utrecht (137km - 中途)
+✨ 添加行程: Leiden (48km - 短途) [2/2日程]
+⚠️  该日期已有2次行程，将自动选择其他日期
+```
+
+### 距离分布控制
+
+系统会智能选择目的地以达到目标分布：
+
+- 当短途行程不足时，优先选择附近城市
+- 当长途行程不足时，优先选择远距离或比利时城市
+- 实时显示各类型距离的完成进度
+
+## 支持的地区
+
+### 荷兰城市
+
+- 主要城市: Amsterdam, Rotterdam, Den Haag, Utrecht 等
+- 中小城市: Delft, Leiden, Gouda, Alphen aan den Rijn 等
+- 村庄: Volendam, Marken, Edam 等
+
+### 比利时弗拉芒区 (自动添加 BE 标识)
+
+- 主要城市: Antwerpen BE, Gent BE, Brugge BE 等
+- 中小城市: Kortrijk BE, Hasselt BE, Leuven BE 等
+
+## 故障排除
+
+### API 密钥问题
+
+```
+❌ 未找到Google Maps API密钥!
+   请使用以下方式之一:
+   1. 设置环境变量: export GOOGLE_MAPS_API_KEY='your_api_key'
+   2. 使用命令行参数: --google-api-key YOUR_API_KEY
+   3. 确保.env文件存在且已加载
+```
+
+### 网络连接问题
+
+```
+⚠️  API调用异常: 城市名 - 网络错误
+⏭️  跳过目的地: 城市名
+```
+
+### 限制达到问题
+
+```
+⚠️  所有目的地都已达到3次使用限制或无法访问
+⚠️  无法找到合适的日期（所有日期都已有2次行程）
+```
+
+## 示例输出
+
+### 控制台输出
+
+```
+🚗 Genereren van reisverslag voor 2025 Q1...
+📍 Startlocatie: 您的起始地址
+🎯 Doel kilometers: 5000
+✅ Google Maps API已连接
+
+🎯 距离分布目标:
+   短途 (<100km): 2000km (40%)
+   中途 (100-300km): 2000km (40%)
+   长途 (>300km): 1000km (20%)
+
+✨ 添加行程: Leiden (48km - 短途)
+✨ 添加行程: Nijmegen (274km - 中途)
+✨ 添加行程: Antwerpen BE (364km - 长途)
+
+📊 最终距离分布:
+   短途 (<100km): 1987km (39.7%)
+   中途 (100-300km): 2089km (41.8%)
+   长途 (>300km): 924km (18.5%)
+   总计: 5000km
+
+✅ Reisverslag geëxporteerd naar: reisverslag_2025_Q1.xlsx
+```
+
+### Excel 文件内容
+
+| Datum      | Bestemming   | Omschrijving   | Totale afstand (km) |
+| ---------- | ------------ | -------------- | ------------------- |
+| 04-01-2025 | Leiden       | klant bezoeken | 48                  |
+| 15-01-2025 | Nijmegen     | klant bezoeken | 274                 |
+| 22-01-2025 | Antwerpen BE | klant bezoeken | 364                 |
+| ...        | ...          | ...            | ...                 |
+| Totaal     | 25 ritten    | 2025 Q1        | 5000                |
+
+## 版本历史
+
+- **v1.0**: 基础功能实现
+- **v1.1**: 添加 Google Maps API 集成
+- **v1.2**: 实现距离分布控制
+- **v1.3**: 添加比利时城市支持
+- **v1.4**: 实现目的地重复限制
+- **v1.5**: 添加同一天行程限制
+- **v2.0**: 重构命令行界面，使用命名参数
 
 ## 许可证
 
-MIT License
+本项目仅供个人使用。请确保遵守 Google Maps API 的使用条款。

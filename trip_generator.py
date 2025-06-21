@@ -53,6 +53,43 @@ DUTCH_CITIES = [
     "Langedijk", "Graft-De Rijp", "Schermer", "Koggenland", "Drechterland",
     "Stede Broec", "Enkhuizen", "Medemblik", "Opmeer", "Hollands Kroon",
     
+    # Duiven及其周边地区 (Gelderland东部)
+    "Duiven", "Westervoort", "Zevenaar", "Didam", "Wehl", "Doesburg", "Doetinchem",
+    "Angerlo", "Babberich", "Giesbeek", "Lathum", "Loo", "Groessen", "Pannerden",
+    "Angeren", "Huissen", "Bemmel", "Elst", "Oosterhout", "Slijk-Ewijk", "Driel",
+    "Heteren", "Valburg", "Zetten", "Hemmen", "Dodewaard", "Opheusden", "Kesteren",
+    "Rhenen", "Wageningen", "Bennekom", "Ede", "Veenendaal", "Renswoude",
+    "Woudenberg", "Scherpenzeel", "Barneveld", "Voorthuizen", "Kootwijkerbroek",
+    "Garderen", "Kootwijk", "Radio Kootwijk", "Uddel", "Elspeet", "Nunspeet",
+    "Harderwijk", "Hierden", "Putten", "Ermelo", "Horst", "Voorthuizen",
+    
+    # Achterhoek地区 (Duiven东南部)
+    "Montferland", "Bergh", "Didam", "Wehl", "Doesburg", "Doetinchem", "Gaanderen",
+    "Terborg", "Silvolde", "Ulft", "Gendringen", "Dinxperlo", "Aalten", "Bredevoort",
+    "Winterswijk", "Woold", "Meddo", "Ratum", "Groenlo", "Lichtenvoorde", "Harreveld",
+    "Eibergen", "Neede", "Borculo", "Ruurlo", "Vorden", "Warnsveld", "Lochem",
+    "Gorssel", "Epse", "Deventer", "Bathmen", "Holten", "Rijssen", "Wierden",
+    "Enter", "Delden", "Hengelo", "Enschede", "Oldenzaal", "Losser", "Denekamp",
+    
+    # Betuwe地区 (Duiven西南部)
+    "Lingewaard", "Huissen", "Bemmel", "Gendt", "Angeren", "Doornenburg", "Haalderen",
+    "Leuth", "Loo", "Pannerden", "Ressen", "Elst", "Oosterhout", "Slijk-Ewijk",
+    "Driel", "Heteren", "Randwijk", "Herveld", "Valburg", "Zetten", "Hemmen",
+    "Dodewaard", "Opheusden", "Kesteren", "IJzendoorn", "Ochten", "Echteld",
+    "Lienden", "Maurik", "Buren", "Kerk-Avezaath", "Zoelen", "Ravenswaaij",
+    "Tiel", "Kapel-Avezaath", "Wadenoijen", "Rumpt", "Geldermalsen", "Beesd",
+    "Rhenoy", "Deil", "Enspijk", "Haaften", "Tuil", "Brakel", "Poederoijen",
+    "Zaltbommel", "Kerkwijk", "Alphen", "Maasdriel", "Hedel", "Ammerzoden",
+    "Rossum", "Hurwenen", "Alem", "Maren-Kessel", "Lith", "Oijen", "Teeffelen",
+    
+    # Veluwe地区 (Duiven北部)
+    "Rheden", "Rozendaal", "Velp", "Dieren", "Laag-Soeren", "De Steeg", "Ellecom",
+    "Spankeren", "Lieren", "Brummen", "Hall", "Eerbeek", "Loenen", "Beekbergen",
+    "Vorchten", "Twello", "Wilp", "Teuge", "Ugchelen", "Hoenderloo", "Otterlo",
+    "Ede", "Bennekom", "Wageningen", "Renkum", "Heelsum", "Doorwerth", "Oosterbeek",
+    "Wolfheze", "Renkum", "Heveadorp", "Driel", "Randwijk", "Herveld-Onder",
+    "Andelst", "Oosterhout", "Kesteren", "Opheusden", "Dodewaard", "Hemmen",
+    
     # 荷兰村庄 (dorpen)
     "Volendam", "Marken", "Edam", "Monnickendam", "Broek in Waterland", "Oostzaan",
     "Wormer", "Jisp", "Neck", "Westzaan", "Krommenie", "Wormerveer", "Zaandijk",
@@ -260,18 +297,18 @@ class TripGenerator:
         date_counts = {}  # 跟踪每个日期的行程次数
         
         # 距离分布目标
-        target_short = int(self.target_km * 0.4)   # 40% < 100km
-        target_medium = int(self.target_km * 0.4)  # 40% 100-300km  
+        target_short = int(self.target_km * 0.4)   # 40% < 150km (调整)
+        target_medium = int(self.target_km * 0.4)  # 40% 150-300km  
         target_long = int(self.target_km * 0.2)    # 20% > 300km
         
         # 当前各类距离累计
-        current_short = 0   # < 100km
-        current_medium = 0  # 100-300km
+        current_short = 0   # < 150km (调整)
+        current_medium = 0  # 150-300km
         current_long = 0    # > 300km
         
         print(f"🎯 距离分布目标:")
-        print(f"   短途 (<100km): {target_short}km (40%)")
-        print(f"   中途 (100-300km): {target_medium}km (40%)")
+        print(f"   短途 (<150km): {target_short}km (40%)")
+        print(f"   中途 (150-300km): {target_medium}km (40%)")
         print(f"   长途 (>300km): {target_long}km (20%)")
         print("-" * 50)
         
@@ -322,7 +359,7 @@ class TripGenerator:
             date_counts[date_str] = date_counts.get(date_str, 0) + 1
             
             # 更新相应的距离累计
-            if distance < 100:
+            if distance < 150:
                 current_short += distance
                 distance_type = "短途"
             elif distance <= 300:
@@ -397,34 +434,70 @@ class TripGenerator:
         if destination_counts is None:
             destination_counts = {}
         
-        # 预估不同距离类型的城市（基于经验）
-        if distance_type == "short":
-            # 短途：主要是海牙周边城市
-            preferred_cities = [
-                "Delft", "Leidschendam", "Voorschoten", "Zoetermeer", "Rijswijk",
-                "Wassenaar", "Katwijk", "Noordwijk", "Leiden", "Alphen aan den Rijn",
-                "Gouda", "Bodegraven", "Woerden", "Vlaardingen", "Schiedam",
-                "Rotterdam", "Dordrecht", "Nieuwegein", "Utrecht", "Hoofddorp",
-                "Haarlem", "Amsterdam", "Hilversum"
-            ]
-        elif distance_type == "medium":
-            # 中途：荷兰境内较远城市
-            preferred_cities = [
-                "Eindhoven", "Tilburg", "Breda", "Bergen op Zoom", "Roosendaal",
-                "Den Bosch", "Oss", "Nijmegen", "Arnhem", "Apeldoorn", "Zwolle",
-                "Deventer", "Amersfoort", "Almere", "Lelystad", "Alkmaar",
-                "Hoorn", "Enkhuizen", "Medemblik", "Purmerend", "Zaanstad",
-                "Heerhugowaard", "Bergen", "Castricum", "Beverwijk"
-            ]
-        else:  # long
-            # 长途：荷兰北部、东部和比利时城市（带 BE 标识）
-            preferred_cities = [
-                "Groningen", "Leeuwarden", "Enschede", "Emmen", "Maastricht",
-                "Heerlen", "Venlo", "Roermond", "Helmod", "Antwerpen BE", "Gent BE",
-                "Brugge BE", "Kortrijk BE", "Hasselt BE", "Leuven BE", "Mechelen BE", "Oostende BE",
-                "Mouscron BE", "Sint-Niklaas BE", "Turnhout BE", "Genk BE", "Brasschaat BE",
-                "Ledegem BE", "Ieper BE", "Poperinge BE", "Lo-Reninge BE", "Westrozebeke BE"
-            ]
+        # 根据起始地点调整城市分类
+        # 如果起点包含Duiven，使用Duiven周边的分类
+        if "Duiven" in self.start_location:
+            if distance_type == "short":
+                # 短途：Duiven周边城市 (<150km往返)
+                preferred_cities = [
+                    # Duiven直接周边 (非常近)
+                    "Arnhem", "Nijmegen", "Zevenaar", "Westervoort", "Doesburg", "Doetinchem",
+                    "Huissen", "Bemmel", "Elst", "Wageningen", "Ede", "Rheden", "Velp",
+                    "Dieren", "Brummen", "Zutphen", "Deventer", "Apeldoorn",
+                    # Gelderland省内较近城市
+                    "Zwolle", "Amersfoort", "Utrecht", "Nieuwegein", "Veenendaal",
+                    "Barneveld", "Harderwijk", "Ermelo", "Putten", "Nunspeet",
+                    # 扩展短途范围 (100-150km)
+                    "Lelystad", "Almere", "Hilversum", "Gouda", "Woerden", "Montfoort"
+                ]
+            elif distance_type == "medium":
+                # 中途：荷兰中部和西部城市 (150-300km往返)
+                preferred_cities = [
+                    "Amsterdam", "Rotterdam", "Den Haag", "Haarlem", "Leiden", "Delft",
+                    "Alphen aan den Rijn", "Zoetermeer", "Dordrecht", "Vlaardingen",
+                    "Schiedam", "Hoofddorp", "Alkmaar", "Hoorn", "Zaanstad", "Purmerend",
+                    "Eindhoven", "Tilburg", "Breda", "Den Bosch", "Oss", "Helmond", 
+                    "Roosendaal", "Bergen op Zoom", "Venlo", "Roermond"
+                ]
+            else:  # long
+                # 长途：荷兰北部、南部远距离城市和比利时 (>300km往返)
+                preferred_cities = [
+                    "Groningen", "Leeuwarden", "Enschede", "Emmen", "Maastricht", "Heerlen",
+                    "Sittard", "Geleen", "Kerkrade", "Brunssum",
+                    "Antwerpen BE", "Gent BE", "Brugge BE", "Kortrijk BE", "Hasselt BE", 
+                    "Leuven BE", "Mechelen BE", "Oostende BE", "Mouscron BE", "Sint-Niklaas BE", 
+                    "Turnhout BE", "Genk BE", "Brasschaat BE", "Ledegem BE", "Ieper BE", 
+                    "Poperinge BE", "Lo-Reninge BE", "Westrozebeke BE"
+                ]
+        else:
+            # 默认分类（适用于海牙等西部城市）
+            if distance_type == "short":
+                # 短途：主要是海牙周边城市
+                preferred_cities = [
+                    "Delft", "Leidschendam", "Voorschoten", "Zoetermeer", "Rijswijk",
+                    "Wassenaar", "Katwijk", "Noordwijk", "Leiden", "Alphen aan den Rijn",
+                    "Gouda", "Bodegraven", "Woerden", "Vlaardingen", "Schiedam",
+                    "Rotterdam", "Dordrecht", "Nieuwegein", "Utrecht", "Hoofddorp",
+                    "Haarlem", "Amsterdam", "Hilversum"
+                ]
+            elif distance_type == "medium":
+                # 中途：荷兰境内较远城市
+                preferred_cities = [
+                    "Eindhoven", "Tilburg", "Breda", "Bergen op Zoom", "Roosendaal",
+                    "Den Bosch", "Oss", "Nijmegen", "Arnhem", "Apeldoorn", "Zwolle",
+                    "Deventer", "Amersfoort", "Almere", "Lelystad", "Alkmaar",
+                    "Hoorn", "Enkhuizen", "Medemblik", "Purmerend", "Zaanstad",
+                    "Heerhugowaard", "Bergen", "Castricum", "Beverwijk"
+                ]
+            else:  # long
+                # 长途：荷兰北部、东部和比利时城市（带 BE 标识）
+                preferred_cities = [
+                    "Groningen", "Leeuwarden", "Enschede", "Emmen", "Maastricht",
+                    "Heerlen", "Venlo", "Roermond", "Helmod", "Antwerpen BE", "Gent BE",
+                    "Brugge BE", "Kortrijk BE", "Hasselt BE", "Leuven BE", "Mechelen BE", "Oostende BE",
+                    "Mouscron BE", "Sint-Niklaas BE", "Turnhout BE", "Genk BE", "Brasschaat BE",
+                    "Ledegem BE", "Ieper BE", "Poperinge BE", "Lo-Reninge BE", "Westrozebeke BE"
+                ]
         
         # 过滤出可用的城市（未失败且使用次数少于3次）
         available_cities = [
@@ -479,8 +552,8 @@ class TripGenerator:
         long_percent = (current_long / total) * 100
         
         print(f"\n📊 最终距离分布:")
-        print(f"   短途 (<100km): {current_short}km ({short_percent:.1f}%)")
-        print(f"   中途 (100-300km): {current_medium}km ({medium_percent:.1f}%)")
+        print(f"   短途 (<150km): {current_short}km ({short_percent:.1f}%)")
+        print(f"   中途 (150-300km): {current_medium}km ({medium_percent:.1f}%)")
         print(f"   长途 (>300km): {current_long}km ({long_percent:.1f}%)")
         print(f"   总计: {total}km")
     
